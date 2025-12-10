@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fourier Series Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- MathJax for LaTeX rendering in the explanations -->
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+
+<body>
+  <h1>Fourier Series Visualizer</h1>
+
+  <!-- Back link to EM portfolio -->
+  <p id="back-link">
+    <a href="https://sef1002.github.io/yousef-EM-portfolio/">
+      ← Back to Electromagnetics Portfolio
+    </a>
+  </p>
+
+  <!-- ================= TOP CONTROLS ================= -->
+  <div class="controls">
+    <label>
+      Waveform:
+      <select id="waveform-select">
+        <option value="square">Square Wave</option>
+        <option value="sawtooth">Sawtooth Wave</option>
+        <option value="triangle">Triangle Wave</option>
+      </select>
+    </label>
+
+    <label>
+      Terms (N):
+      <input id="terms-slider" type="range" min="1" max="50" value="5" />
+      <span id="terms-label">5</span>
+    </label>
+
+    <label>
+      Speed (ms):
+      <input id="speed-slider" type="range" min="40" max="300" value="150" />
+      <span id="speed-label">150</span>
+    </label>
+
+    <label class="spectrum-toggle-label">
+      <input type="checkbox" id="spectrum-toggle" checked />
+      Show spectrum
+    </label>
+
+    <button id="play-button" type="button">Play</button>
+    <button id="download-btn" type="button">Download Image</button>
+  </div>
+
+  <!-- =============== VISUALIZER (HARMONICS + PLOT) =============== -->
+  <div id="visualizer-area">
+    <!-- LEFT: HARMONICS PANEL (floated via CSS) -->
+    <div id="harmonics-panel">
+      <h3 id="harmonics-title">Harmonics</h3>
+
+      <div id="harmonics-checkboxes">
+        <label><input type="checkbox" data-n="1" checked /> n = 1</label>
+        <label><input type="checkbox" data-n="2" checked /> n = 2</label>
+        <label><input type="checkbox" data-n="3" checked /> n = 3</label>
+        <label><input type="checkbox" data-n="4" checked /> n = 4</label>
+        <label><input type="checkbox" data-n="5" checked /> n = 5</label>
+        <label><input type="checkbox" data-n="6" checked /> n = 6</label>
+        <label><input type="checkbox" data-n="7" checked /> n = 7</label>
+        <label><input type="checkbox" data-n="8" checked /> n = 8</label>
+        <label><input type="checkbox" data-n="9" checked /> n = 9</label>
+        <label><input type="checkbox" data-n="10" checked /> n = 10</label>
+      </div>
+
+      <button id="reset-harmonics" type="button">Reset</button>
+    </div>
+
+    <!-- RIGHT: MAIN TIME-DOMAIN PLOT -->
+    <canvas id="plot" width="800" height="400"></canvas>
+  </div>
+
+  <!-- SPECTRUM BELOW -->
+  <canvas id="spectrum" width="800" height="200"></canvas>
+  <!-- Tooltip for harmonic hover -->
+  <div id="spectrum-tooltip"></div>
+
+  <!-- ================= EXPLANATORY SECTIONS ================= -->
+
+  <section id="about-project">
+    <h2>About this project</h2>
+    <p>
+      I built this visualizer to make Fourier series feel less like a formal
+      theorem and more like a tool I could use. Instead of only seeing
+      infinite sums on paper, I wanted to watch partial sums converge, see the
+      Gibbs overshoot appear near discontinuities, and test what happens when
+      individual harmonics are removed.
+    </p>
+    <p>
+      Implementing the series numerically forced me to translate the algebra
+      into code, think about sampling and scaling, and debug my own
+      misunderstandings. The goal was not just to reproduce textbook formulas,
+      but to build something interactive that explains them back to me.
+    </p>
+  </section>
+
+  <section id="summary">
+    <h2>What this visualizer shows</h2>
+    <p>
+      This tool visualizes how Fourier series reconstruct periodic signals from sums
+      of sinusoids. The blue curve is the <strong>Fourier approximation</strong> using
+      \(N\) terms, and the red dashed curve is the
+      <strong>ideal target waveform</strong>. Increasing \(N\) improves the match
+      away from discontinuities and reveals the Gibbs overshoot near jump points.
+    </p>
+  </section>
+
+  <section id="harmonics-explainer">
+    <h2>Understanding harmonics and what they contribute</h2>
+    <p>
+      Every periodic signal can be decomposed into harmonic components&mdash;sine
+      waves whose frequencies are integer multiples of the fundamental. The amplitude
+      of each harmonic determines how strongly that frequency contributes to the
+      overall shape of the signal.
+    </p>
+
+    <p>
+      Smooth signals (like the triangle wave) have rapidly decaying harmonic
+      amplitudes, typically on the order of \(1/n^2\). Only the first few harmonics
+      meaningfully shape the function, so the Fourier series converges quickly.
+      Signals with sharp corners or jumps (like the square and sawtooth waves)
+      need many more harmonics, with amplitudes decaying only as \(1/n\). These
+      slower-decaying spectra are why Gibbs overshoot appears and why reconstructions
+      exhibit high-frequency ringing.
+    </p>
+
+    <p>
+      The harmonic controls make this decomposition tangible. Turning a harmonic off
+      is equivalent to filtering out that frequency. Removing low harmonics destroys
+      the overall structure, while removing higher harmonics smooths the waveform
+      without changing its gross shape. This mirrors real engineering
+      ideas like bandwidth limits, filtering, compression, and the cost of keeping
+      high-frequency content in a signal.
+    </p>
+  </section>
+
+  <section id="math-core">
+    <h2>Core Fourier series formulas</h2>
+    <p>
+      A \(2\pi\)-periodic function can be expanded as
+    </p>
+    <p>
+      \[
+        f(x) = a_0 + \sum_{n=1}^{\infty}
+        \big[a_n \cos(nx) + b_n \sin(nx)\big].
+      \]
+    </p>
+
+    <p>
+      In this visualizer we use sine-only series for three standard waveforms:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Square wave</strong> (odd harmonics):
+        \[
+          f_N(x) = \frac{4}{\pi}
+          \sum_{k=0}^{N-1} \frac{1}{2k+1}\sin\big((2k+1)x\big).
+        \]
+      </li>
+      <li>
+        <strong>Sawtooth wave</strong> (all harmonics):
+        \[
+          f_N(x) = -\frac{2}{\pi}
+          \sum_{n=1}^{N} \frac{1}{n}\sin(nx).
+        \]
+      </li>
+      <li>
+        <strong>Triangle wave</strong> (odd harmonics, faster decay):
+        \[
+          f_N(x) = \frac{8}{\pi^2}
+          \sum_{k=0}^{N-1} \frac{(-1)^k}{(2k+1)^2}\sin\big((2k+1)x\big).
+        \]
+      </li>
+    </ul>
+
+    <p>
+      As \(N\) increases, \(f_N(x)\) approaches the ideal waveform, except near
+      jump discontinuities where the Gibbs phenomenon appears for the square and
+      sawtooth waves. The triangle wave converges faster because its coefficients
+      decay like \(1/n^2\).
+    </p>
+  </section>
+
+  <section id="math-deep">
+    <details>
+      <summary><strong>Deeper look: convergence and the Gibbs phenomenon</strong></summary>
+
+      <p>
+        Let \(S_N(x)\) be the \(N\)-term partial sum of the Fourier series of a
+        \(2\pi\)-periodic function \(f(x)\):
+      </p>
+
+      <p>
+        \[
+          S_N(x) = a_0 + \sum_{n=1}^{N}
+          \big[a_n \cos(nx) + b_n \sin(nx)\big].
+        \]
+      </p>
+
+      <p>
+        For a piecewise smooth \(f(x)\), at points where \(f\) is continuous,
+        \(S_N(x) \to f(x)\) as \(N \to \infty\). At a jump discontinuity \(x_0\)
+        with left and right limits \(f(x_0^-)\) and \(f(x_0^+)\),
+      </p>
+
+      <p>
+        \[
+          S_N(x_0) \to \frac{f(x_0^-) + f(x_0^+)}{2}.
+        \]
+      </p>
+
+      <p>
+        Near a jump of size \(\Delta = f(x_0^+) - f(x_0^-)\), the partial sums
+        develop oscillations whose maximum overshoot approaches a fixed fraction
+        of the jump:
+      </p>
+
+      <p>
+        \[
+          \text{overshoot} \approx 0.08949\, \Delta.
+        \]
+      </p>
+
+      <p>
+        For a square wave with \(\Delta = 2\), this overshoot is about
+        \(0.18\) above the high level and below the low level. As \(N\) grows,
+        the oscillatory region shrinks toward the discontinuity, but the
+        overshoot height does not vanish, this is the Gibbs phenomenon.
+      </p>
+    </details>
+  </section>
+
+  <section id="time-frequency">
+    <h2>Time–frequency duality</h2>
+    <p>
+      The same signal can be viewed in two complementary ways: in the
+      <strong>time domain</strong>, as a waveform evolving in time, and in the
+      <strong>frequency domain</strong>, as a spectrum of harmonic components.
+      Fourier series are the bridge between these two views.
+    </p>
+    <p>
+      Sharp edges and discontinuities in time require many high-frequency
+      harmonics, which is why the square and sawtooth waves have slowly
+      decaying \(1/n\) coefficients and wide spectra. Smoother signals like the
+      triangle wave have faster \(1/n^2\) decay, behaving more like
+      band-limited signals. What looks complicated in time often becomes
+      simpler in frequency, and the reverse is also true.
+    </p>
+    <p>
+      This visualizer shows that duality directly: changing the number of terms
+      or disabling individual harmonics immediately changes both the waveform
+      and its spectrum, making the connection between time and frequency
+      concrete.
+    </p>
+  </section>
+
+  <section id="engineering-relevance">
+    <h2>Why this matters for electromagnetics and engineering</h2>
+    <p>
+      In electromagnetics and signal processing, we almost never work with pure
+      sinusoids in isolation. Antenna radiation patterns, transient signals on
+      transmission lines, switching waveforms in power electronics and digital
+      communication signals can all be analysed as sums of frequency components.
+      Fourier series are the simplest setting where this time–frequency
+      relationship becomes visible.
+    </p>
+    <p>
+      Sharp-edged signals produce slowly decaying spectra, which in real
+      hardware means wide bandwidth and stronger coupling to high-frequency
+      behaviour, including unwanted radiation and ringing. Smoother signals
+      concentrate energy in lower harmonics, behaving more like
+      band-limited, easier-to-filter signals. Being able to move between the
+      time-domain and frequency-domain pictures is the same mental move used
+      when reasoning about filters, channel bandwidth, antenna response and
+      spectral efficiency in engineering.
+    </p>
+  </section>
+
+  <section id="real-world">
+    <h2>Real-world examples of Fourier ideas</h2>
+    <ul>
+      <li>
+        <strong>Digital signals and clocks:</strong>
+        Square-like digital waveforms contain many harmonics, which can radiate
+        as EMI and require careful filtering and PCB design.
+      </li>
+      <li>
+        <strong>Audio synthesis:</strong>
+        Musical timbre is largely determined by harmonic content; synth waveforms
+        (square, saw, triangle) are classic Fourier-building-blocks.
+      </li>
+      <li>
+        <strong>Antennas:</strong>
+        Non-sinusoidal currents on an antenna can be decomposed into harmonics,
+        each coupling differently to the far-field radiation pattern.
+      </li>
+      <li>
+        <strong>Power electronics:</strong>
+        PWM and chopped waveforms drive motors and converters but generate
+        harmonics that affect losses, noise and filtering requirements.
+      </li>
+      <li>
+        <strong>Communication channels:</strong>
+        Bandwidth limits act like filters on the Fourier content of a signal,
+        constraining how fast we can switch and how much information we can send.
+      </li>
+    </ul>
+  </section>
+
+    <section id="reflection">
+    <h2>What I learned from building this</h2>
+    <p>
+      Implementing these Fourier series numerically forced me to connect
+      analysis and computation. Coding the partial sums and watching them
+      converge made the Gibbs phenomenon intuitive in a way equations alone
+      could not. Seeing how different spectra (square, sawtooth, triangle) and
+      individual harmonics contribute gave me a deeper sense of how signal
+      decomposition, approximation and bandwidth limits show up in real engineering systems.
+    </p>
+  </section>
+
+  <section id="powered-by">
+    <h2>Powered by</h2>
+    <p>
+      This visualizer is built with vanilla JavaScript and the HTML5 canvas,
+      using manually implemented Fourier series for square, sawtooth and
+      triangle waves. All rendering, sampling and spectrum drawing are done
+      without external plotting libraries, to keep the connection between the
+      maths and the implementation explicit.
+    </p>
+  </section>
+
+
+  <footer id="footer">
+    <p>Created by Yousef Fayad • 2025</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

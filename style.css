@@ -1,0 +1,255 @@
+/* ============================================
+   GLOBAL THEME — DARK MODE (matches EM project)
+   ============================================ */
+
+:root {
+  --bg: #050814;
+  --bg-elevated: #0d1020;
+  --bg-panel: #0c1124;
+  --border-subtle: #20243a;
+  --text-main: #f5f7ff;
+  --text-muted: #e3e6f3;
+  --accent: #4fd1ff;
+  --accent-soft: rgba(79, 209, 255, 0.18);
+  --red: #ff4d6a;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 20px 20px 50px;
+  background: radial-gradient(circle at top, #131832 0, #050814 60%, #02030a 100%);
+  color: var(--text-main);
+  line-height: 1.55;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 22px;
+  font-size: 2.2rem;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+h2 {
+  margin-top: 35px;
+  margin-bottom: 10px;
+  font-size: 1.45rem;
+  font-weight: 600;
+}
+
+h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+
+
+/* ============================================
+   CONTROLS BAR
+   ============================================ */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+.controls label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.controls select,
+.controls input[type="range"] {
+  accent-color: var(--accent);
+}
+
+button {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+button:hover {
+  background: rgba(79, 209, 255, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(79, 209, 255, 0.25);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+
+
+/* ============================================
+   HARMONICS SIDEBAR
+   ============================================ */
+
+#harmonics-title,
+#harmonics-checkboxes,
+#reset-harmonics {
+  float: left;
+  clear: both;
+  width: 200px;
+}
+
+#harmonics-panel {
+  padding: 12px 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+#harmonics-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#harmonics-checkboxes label {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+
+
+/* ============================================
+   CANVASES (PLOT + SPECTRUM)
+   ============================================ */
+
+canvas {
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: #060a18;
+  display: block;
+}
+
+/* Push the plot right of sidebar */
+#plot {
+  margin-left: 220px;
+}
+
+/* Spectrum sits under everything, centered */
+#spectrum {
+  clear: both;
+  margin: 20px auto 0 auto;
+}
+
+
+
+/* ============================================
+   CONTENT SECTIONS
+   ============================================ */
+
+section {
+  margin-top: 35px;
+  padding: 15px 18px;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+section p {
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+ul {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-left: 20px;
+}
+
+
+
+/* ============================================
+   DETAILS DROPDOWN SECTION
+   ============================================ */
+
+details {
+  margin-top: 12px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+details p {
+  margin-top: 8px;
+}
+
+
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+#footer {
+  margin-top: 50px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ===== Back link to EM portfolio ===== */
+#back-link {
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 18px;
+}
+
+#back-link a {
+  color: var(--accent);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+#back-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Spectrum tooltip ===== */
+#spectrum-tooltip {
+  position: absolute;
+  display: none;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  background: rgba(10, 14, 35, 0.95);
+  color: #f8f9ff;
+  border: 1px solid var(--border-subtle);
+  pointer-events: none;
+  transform: translateX(-50%);
+  z-index: 1000;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
