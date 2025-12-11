@@ -4,7 +4,7 @@ This project is a small interactive tool that demonstrates how periodic signals 
 
 ## Motivation
 
-In  Engineering, many systems, from communication signals to control systems—are analyzed in the frequency domain. I built this project to connect my self-study in electromagnetism, signal processing, and applied mathematics with a concrete, visual example. It fits naturally with the “systems thinking” approach I use across my work: break a complex signal into simple components, understand each one, and reconstruct the whole with clarity.
+In  Engineering, many systems, from communication signals to control systems are analyzed in the frequency domain. I built this project to connect my self-study in electromagnetism, signal processing, and applied mathematics with a concrete, visual example. It fits naturally with the “systems thinking” approach I use across my work: break a complex signal into simple components, understand each one, and reconstruct the whole with clarity.
 
 ## Mathematics
 
